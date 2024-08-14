@@ -77,13 +77,13 @@ def show_home():
         st.plotly_chart(line_chart_non_hoax, use_container_width=False)
 
     # Create a new row for WordCloud visualizations
-    col5, col6 = st.columns([2.5, 2.5])
+    col5, col6, col7 = st.columns([2, 2, 3.5])
 
     # Wordcloud for Hoax
     with col5:
         st.markdown("<h6 style='font-size: 12px; margin-bottom: 0;'>Wordcloud for Hoax</h6>", unsafe_allow_html=True)
         hoax_text = ' '.join(df[df['Label'] == 'HOAX']['Content'])
-        wordcloud_hoax = WordCloud(width=500, height=150, background_color='white', colormap='Reds').generate(hoax_text)
+        wordcloud_hoax = WordCloud(width=500, height=200, background_color='white', colormap='Reds').generate(hoax_text)
         fig_hoax = plt.figure(figsize=(5, 2.5))
         plt.imshow(wordcloud_hoax, interpolation='bilinear')
         plt.axis('off')
@@ -93,15 +93,43 @@ def show_home():
     with col6:
         st.markdown("<h6 style='font-size: 12px; margin-bottom: 0;'>Wordcloud for Non-Hoax</h6>", unsafe_allow_html=True)
         non_hoax_text = ' '.join(df[df['Label'] == 'NON-HOAX']['Content'])
-        wordcloud_non_hoax = WordCloud(width=500, height=150, background_color='white', colormap='Greens').generate(non_hoax_text)
+        wordcloud_non_hoax = WordCloud(width=500, height=200, background_color='white', colormap='Greens').generate(non_hoax_text)
         fig_non_hoax = plt.figure(figsize=(5, 2.5))
         plt.imshow(wordcloud_non_hoax, interpolation='bilinear')
         plt.axis('off')
         st.pyplot(fig_non_hoax)
+    
+    with col7:
+        st.markdown("<h6 style='font-size: 12px; margin-bottom: 0;'>Classification Donut Chart</h6>", unsafe_allow_html=True)
+        df_classification_counts = df['Classification'].value_counts().reset_index()
+        df_classification_counts.columns = ['Classification', 'Count']
+    
+        # Create the donut chart
+        donut_chart_classification = px.pie(df_classification_counts, names='Classification', values='Count', 
+                                        hole=0.3, color_discrete_sequence=px.colors.qualitative.Set3)
+    
+        # Update layout to move the legend and adjust its size
+        donut_chart_classification.update_layout(
+            width=300, height=200,  # Adjust the size of the chart
+            margin=dict(t=20, b=20, l=20, r=150),  # Adjust margins to make room for the legend
+            legend=dict(
+                x=1,  # Place the legend to the right of the chart
+                y=1,
+                traceorder='normal',
+                orientation='v',  # Vertical legend
+                title='Classification',
+                font=dict(size=10),  # Smaller font size for the legend
+                bordercolor='Black',
+                borderwidth=1,
+                itemwidth=40,  # Adjust width of the legend items
+            )
+        )
+        st.plotly_chart(donut_chart_classification, use_container_width=True)
+
         
-    col7 = st.columns([5])
+    col8 = st.columns([5])
     # Evaluation Metrics Table
-    with col7[0]:
+    with col8[0]:
         st.markdown("<h6 style='font-size: 12px; margin-bottom: 0;'>Evaluation Metrics</h6>", unsafe_allow_html=True)
         header = pd.MultiIndex.from_tuples([
             ('Pre-trained Model', ''),
